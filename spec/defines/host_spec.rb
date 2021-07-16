@@ -20,7 +20,34 @@ describe 'dhcp::host' do
         end
 
         it {
-          verify_concat_fragment_exact_contents(catalogue, 'dhcp.hosts+10_myhost.hosts', [
+          verify_concat_fragment_with_comments(catalogue, 'dhcp.hosts+10_myhost.hosts', [
+            'host myhost {',
+            '  hardware ethernet   01:02:03:04:05:06;',
+            '  fixed-address       10.0.0.100;',
+            '  ddns-hostname       "myhost";',
+            '}',
+          ])
+        }
+      end
+
+      describe 'comment parameter' do
+        let :params do {
+          :ip      => '10.0.0.100',
+          :mac     => '01:02:03:04:05:06',
+          :comment => 'a useful comment',
+        } end
+
+        let :facts do
+          facts
+        end
+
+        let :pre_condition do
+          "class { '::dhcp': interfaces => ['eth0']}"
+        end
+
+        it {
+          verify_concat_fragment_with_comments(catalogue, 'dhcp.hosts+10_myhost.hosts', [
+            '# a useful comment',
             'host myhost {',
             '  hardware ethernet   01:02:03:04:05:06;',
             '  fixed-address       10.0.0.100;',
